@@ -1,0 +1,38 @@
+version: '3.8'
+services:
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    volumes:
+      - ./models:/app/models
+      - ./configs:/app/configs
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8000:8000"
+    depends_on:
+      - model
+  ui:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.ui
+    volumes:
+      - ./configs:/app/configs
+    ports:
+      - "8501:8501"
+    depends_on:
+      - api
+  model:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.train
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./configs:/app/configs
+    environment:
+      - PYTHONUNBUFFERED=1
+    profiles:
+      - train
+    command: ["python", "-m", "src.docshield.train.train", "--config", "configs/train.yaml"]

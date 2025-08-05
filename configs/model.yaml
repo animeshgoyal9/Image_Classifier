@@ -1,0 +1,14 @@
+# Model hyperparameters
+
+name: efficientnet  # or vit
+pretrained: true
+num_classes: 6
+dropout: 0.2
+head_width: 128
+vit:
+  image_size: 224
+  patch_size: 16
+  hidden_dim: 768
+  num_layers: 12
+  num_heads: 12
+  mlp_dim: 3072

@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "docshield"
+version = "0.1.0"
+description = "A document authentication system for detecting fake vs. real documents."
+authors = [ { name = "DocShield Contributors", email = "support@example.com" } ]
+license = { file = "LICENSE" }
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "torch>=1.13.1",
+    "torchvision>=0.14.1",
+    "albumentations>=1.3.0",
+    "fastapi>=0.110.0",
+    "uvicorn>=0.20.0",
+    "pydantic>=1.10.0",
+    "streamlit>=1.23.0",
+    "omegaconf>=2.2.2",
+    "hydra-core>=1.3.2",
+    "optuna>=3.3.0",
+    "tensorboard>=2.14.0",
+    "scikit-learn>=1.3.0",
+    "matplotlib>=3.7.0",
+    "pillow>=9.5.0",
+    "pdf2image>=1.16.0",
+    "seaborn>=0.12.2"
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.6",
+    "black>=23.3.0",
+    "mypy>=1.4.1",
+    "pytest>=7.4.0",
+    "pytest-cov>=4.0.0"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.black]
+line-length = 88
+
+[tool.mypy]
+python_version = "3.11"
+strict = false
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"

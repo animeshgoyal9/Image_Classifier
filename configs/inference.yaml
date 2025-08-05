@@ -1,0 +1,17 @@
+# Inference configuration
+
+model_path: models/best.ckpt
+model_name: efficientnet
+num_classes: 6
+threshold: 0.5
+top_k: 2
+device: cpu
+
+data:
+  image_size: 224
+  normalize_mean: [0.485, 0.456, 0.406]
+  normalize_std: [0.229, 0.224, 0.225]
+
+pdf_conversion:
+  backend: pdf2image  # or fitz
+  poppler_path: null  # Path to poppler bin if needed

@@ -1,0 +1,42 @@
+# Training configuration
+
+defaults:
+  - model: model
+  - data: augmentations
+
+dataset:
+  train_dir: data/train
+  val_dir: data/val
+  num_classes: 6  # ssn_real, ssn_fake, dl_real, dl_fake, bankstmt_real, bankstmt_fake
+
+model:
+  name: efficientnet
+  pretrained: true
+  dropout: 0.2
+
+optim:
+  lr: 1e-3
+  weight_decay: 1e-4
+  epochs: 20
+  batch_size: 32
+  scheduler: cosine
+  warmup_steps: 500
+
+augmentations:
+  train: configs/augmentations.yaml
+  val: configs/augmentations.yaml
+
+logging:
+  tensorboard_dir: logs/tensorboard
+  checkpoint_dir: models
+
+seed: 42
+
+num_workers: 4
+
+early_stopping:
+  patience: 5
+  monitor: val_f1_macro
+
+tuning:
+  enabled: false
