@@ -38,7 +38,15 @@ def generate_image(text: str, size: int = 256) -> Image.Image:
     except IOError:
         font = ImageFont.load_default()
     text_color = (0, 0, 0)
-    w, h = draw.textsize(text, font=font)
+    try:
+        # Pillow < 10.0
+        w, h = draw.textsize(text, font=font)  # type: ignore[attr-defined]
+    except AttributeError:
+        # Pillow >= 10.0: use textbbox to compute bounding box
+        bbox = draw.textbbox((0, 0), text, font=font)
+        w = bbox[2] - bbox[0]
+        h = bbox[3] - bbox[1]
+
     # Center text
     position = ((size - w) // 2, (size - h) // 2)
     draw.text(position, text, fill=text_color, font=font)
