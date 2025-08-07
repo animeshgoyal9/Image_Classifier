@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 # Add src to path
-sys.path.insert(0, str(Path(__file__).parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 import torch
 import torch.nn as nn
@@ -18,7 +18,7 @@ from pathlib import Path
 
 from docshield.models.factory import create_model
 from docshield.data.transforms import build_transforms
-from docshield.train.utils import save_checkpoint, set_seed
+from docshield.train.utils import save_checkpoint, load_checkpoint, set_seed
 
 
 def create_synthetic_dataset(output_dir: str, num_samples: int = 100):
@@ -96,14 +96,9 @@ class SimpleDataset:
         return img, label
 
 
-def train_model(data_dir: str, output_dir: str, epochs: int = 10):
+def train_model(data_dir: str, output_dir: str, epochs: int = 10, resume_from: str = None):
     """Train a DocShield model."""
-    print("Setting up training...")
-    
-    # Set seed for reproducibility
     set_seed(42)
-    
-    # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
     
@@ -117,6 +112,14 @@ def train_model(data_dir: str, output_dir: str, epochs: int = 10):
     }
     model, _ = create_model(model_config)
     model.to(device)
+    
+    # Load existing model if resuming
+    start_epoch = 0
+    if resume_from and Path(resume_from).exists():
+        print(f"Loading existing model from {resume_from}")
+        checkpoint = load_checkpoint(model, resume_from)
+        start_epoch = checkpoint.get('epoch', 0) + 1
+        print(f"Resuming from epoch {start_epoch}")
     
     # Setup transforms
     transform = build_transforms({
@@ -143,7 +146,7 @@ def train_model(data_dir: str, output_dir: str, epochs: int = 10):
     
     # Training loop
     model.train()
-    for epoch in range(epochs):
+    for epoch in range(start_epoch, epochs):
         running_loss = 0.0
         correct = 0
         total = 0
@@ -194,6 +197,8 @@ if __name__ == "__main__":
                        help="Number of training epochs")
     parser.add_argument("--create-synthetic", action="store_true", 
                        help="Create synthetic dataset for training")
+    parser.add_argument("--resume-from", type=str, default=None,
+                       help="Path to existing model checkpoint to resume training")
     
     args = parser.parse_args()
     
@@ -201,7 +206,7 @@ if __name__ == "__main__":
         create_synthetic_dataset(args.data_dir)
     
     if Path(args.data_dir).exists():
-        model_path = train_model(args.data_dir, args.output_dir, args.epochs)
+        model_path = train_model(args.data_dir, args.output_dir, args.epochs, args.resume_from)
         print(f"\nTraining complete! Model saved to: {model_path}")
         print(f"To use the trained model, set MODEL_PATH={model_path}")
     else:

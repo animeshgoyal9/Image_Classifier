@@ -97,10 +97,26 @@ run-app: run-api run-ui
 
 # Training targets
 train-synthetic:
-	python train_model.py --create-synthetic --epochs 5
+	python train.py synthetic --create-synthetic --epochs 5
 
 train-model:
-	python train_model.py --epochs 10
+	python train.py synthetic --epochs 10
 
 train-quick:
-	python train_model.py --create-synthetic --epochs 3
+	python train.py synthetic --create-synthetic --epochs 3
+
+train-resume:
+	python train.py synthetic --resume-from models/best.ckpt --epochs 15
+
+train-custom:
+	python train.py synthetic --data-dir data/custom --epochs 20 --output-dir models/custom
+
+# Real data training (no synthetic images)
+train-real:
+	python train.py real --data-dir data/real_documents --epochs 20
+
+train-real-validate:
+	python train.py validate --data-dir data/real_documents
+
+train-real-resume:
+	python train.py real --data-dir data/real_documents --resume-from models/real_model/best.ckpt --epochs 10
