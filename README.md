@@ -35,7 +35,9 @@ docshield/
         vit.py
         heads.py
       train/
-        train.py
+        train_advanced.py      # Advanced training with YAML config
+        train_synthetic.py     # Simple synthetic data training
+        train_real_data.py     # Real data training
         eval.py
         tune.py
         utils.py
@@ -56,10 +58,7 @@ docshield/
     test_inference.py
     test_api.py
     test_transforms.py
-  scripts/
-    export_onnx.py
-    download_models.py
-    benchmark_infer.py
+  train.py                # Training script wrapper
   models/                 # Saved model checkpoints (empty by default)
     .gitkeep
   data/                   # Data directory (empty by default)

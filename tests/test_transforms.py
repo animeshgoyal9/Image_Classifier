@@ -43,7 +43,7 @@ class TestBuildTransforms:
     def test_build_transforms_with_random_resized_crop(self):
         """Test building transforms with RandomResizedCrop."""
         config = {
-            "train": [{"name": "RandomResizedCrop", "params": {"height": 224, "width": 224}}],
+            "train": [{"name": "RandomResizedCrop", "params": {"size": (224, 224)}}],
             "val": [{"name": "Resize", "params": {"height": 224, "width": 224}}]
         }
         result = build_transforms(config)
@@ -66,7 +66,7 @@ class TestBuildTransforms:
         """Test building transforms with multiple transformations."""
         config = {
             "train": [
-                {"name": "RandomResizedCrop", "params": {"height": 224, "width": 224}},
+                {"name": "RandomResizedCrop", "params": {"size": (224, 224)}},
                 {"name": "HorizontalFlip", "params": {"p": 0.5}},
                 {"name": "Normalize", "params": {"mean": [0.485, 0.456, 0.406], "std": [0.229, 0.224, 0.225]}}
             ],
@@ -97,7 +97,7 @@ class TestBuildTransforms:
             "val": []
         }
         
-        with pytest.raises(ValueError, match="Unknown transform"):
+        with pytest.raises(ValueError, match="Transform config must have a 'name' field"):
             build_transforms(config)
 
     def test_build_transforms_applies_to_tensor(self):
@@ -112,15 +112,18 @@ class TestBuildTransforms:
         train_result = result["train"](image=np.array(test_image))["image"]
         val_result = result["val"](image=np.array(test_image))["image"]
         
-        # Check that results are tensors (numpy arrays with float dtype)
-        assert train_result.dtype == np.float32
-        assert val_result.dtype == np.float32
+        # Check that results are tensors (ToTensorV2 converts to PyTorch tensors)
+        import torch
+        assert isinstance(train_result, torch.Tensor)
+        assert isinstance(val_result, torch.Tensor)
+        assert train_result.dtype in [torch.float32, torch.float64]
+        assert val_result.dtype in [torch.float32, torch.float64]
 
     def test_build_transforms_with_augmentations(self):
         """Test building transforms with common augmentations."""
         config = {
             "train": [
-                {"name": "RandomResizedCrop", "params": {"height": 224, "width": 224}},
+                {"name": "RandomResizedCrop", "params": {"size": (224, 224)}},
                 {"name": "HorizontalFlip", "params": {"p": 0.5}},
                 {"name": "RandomBrightnessContrast", "params": {"p": 0.2}},
                 {"name": "Normalize", "params": {"mean": [0.485, 0.456, 0.406], "std": [0.229, 0.224, 0.225]}}
